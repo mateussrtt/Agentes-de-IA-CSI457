@@ -16,36 +16,41 @@ Universidade Federal de Ouro Preto
 A especificação formal do agente foi desenvolvida previamente e está descrita no arquivo em LaTeX enviado junto ao trabalho.
 
 ### Percepções
+
 - Temperatura atual  
 - Temperatura desejada  
 - Estado do sistema  
 - Tempo/ciclo de execução  
-- Tendência da temperatura  
-- Histórico de ações anteriores  
+- Histórico de leituras anteriores  
+- Tendência de aquecimento ou resfriamento do ambiente  
 
 ### Ações
+
 - Ligar aquecedor  
-- Desligar aquecedor  
 - Ligar resfriador  
-- Desligar resfriador  
-- Manter  
+- Desligar sistema  
+- Manter estado atual  
 
 ### Função do Agente
 
 `f : P* → A`
 
-O agente utiliza as percepções recebidas para escolher a ação mais adequada.
+O agente recebe percepções do ambiente e escolhe a melhor ação possível para atingir seu objetivo.
 
-- Se a temperatura atual estiver abaixo da desejada, liga o aquecedor.  
-- Se a temperatura atual estiver acima da desejada, liga o resfriador.  
-- Se estiver próxima da meta, mantém o estado atual.  
-- Também utiliza histórico e margem de tolerância para evitar oscilações frequentes.
+- Se a temperatura estiver acima da faixa ideal, aciona o resfriamento.  
+- Se a temperatura estiver abaixo da faixa ideal, aciona o aquecimento.  
+- Se a temperatura estiver adequada, desliga o sistema.  
+- Caso não haja necessidade de mudança, mantém o estado atual.  
 
 ### Critério de Racionalidade
+
 - Manter a temperatura próxima da desejada  
 - Reduzir consumo de energia  
-- Evitar trocas constantes de estado  
+- Evitar acionamentos desnecessários  
 - Garantir conforto térmico  
+- Adaptar-se automaticamente ao ambiente  
+
+---
 
 ## Parte 2 — Implementação
 
@@ -53,60 +58,92 @@ A implementação foi realizada em Python no arquivo `agente_temperatura.py`.
 
 Classe principal: `AgenteTemperatura`
 
-O código possui métodos de:
+### O código possui:
+
 - percepção do ambiente  
-- tomada de decisão  
-- execução da ação  
-- testes automáticos dos cenários propostos  
+- memória de temperaturas anteriores  
+- tomada de decisão automática  
+- acionamento de aquecedor ou resfriador  
+- simulação automática do ambiente  
+- menu interativo para testes  
+- histórico de ações realizadas  
+
+---
 
 ## Parte 3 — Testes
 
-Foram executados os cenários solicitados pelo professor.
+Foram executadas simulações automáticas baseadas nos cenários propostos.
 
-### Cenário 1 — Oscilação
-`[24.9, 25.1, 24.8, 25.2]`
+### Cenário 1 — Ambiente quente
 
-Resultado: o agente manteve estabilidade, evitando mudanças desnecessárias.
+Temperatura inicial: `35°C`  
+Temperatura desejada: `25°C`
 
-### Cenário 2 — Calor extremo
-`[30, 32, 35]`
+**Resultado:** o agente ligou o sistema de resfriamento e reduziu gradualmente a temperatura até a faixa ideal.
 
-Resultado: o agente acionou o sistema de resfriamento.
+### Cenário 2 — Ambiente frio
 
-### Cenário 3 — Resfriamento gradual
-`[28, 27, 26, 25, 24]`
+Temperatura inicial: `18°C`  
+Temperatura desejada: `25°C`
 
-Resultado: o agente reduziu a temperatura até atingir a faixa ideal.
+**Resultado:** o agente ligou o aquecedor e elevou gradualmente a temperatura até a faixa ideal.
+
+### Cenário 3 — Simulação personalizada
+
+O usuário pode informar qualquer temperatura inicial e qualquer temperatura desejada.
+
+**Resultado:** o agente analisa a situação e controla automaticamente o ambiente até estabilizar.
+
+---
 
 ## Parte 4 — Análise Crítica
 
-**1. O agente corresponde à especificação?**  
-Sim. O comportamento implementado segue as regras definidas anteriormente.
+### 1. O agente implementado corresponde à especificação?
 
-**2. O uso de IA alterou decisões planejadas?**  
-Não. A IA foi utilizada apenas como apoio técnico.
+Sim. O agente segue a proposta inicial, utilizando percepções, memória, ações e tomada de decisão para controle inteligente da temperatura.
 
-**3. O agente pode ser considerado racional?**  
-Sim. Suas ações são escolhidas visando atingir o objetivo proposto.
+### 2. O uso de IA alterou alguma decisão originalmente planejada?
 
-**4. Principais limitações**
-- Ambiente simplificado  
-- Sem sensores reais  
-- Não realiza previsão futura  
+Sim. A inteligência artificial aplicada no agente permitiu aprendizado simples do ambiente, autonomia nas decisões e adaptação automática durante a execução.
 
-**5. Possíveis melhorias**
-- Uso de aprendizado de máquina  
+### 3. O agente pode ser considerado racional?
+
+Sim. O agente escolhe ações com base nas informações disponíveis e busca atingir o objetivo com menor custo e maior eficiência.
+
+### 4. Principais limitações
+
+- Simulação simplificada do ambiente  
+- Não utiliza sensores reais  
+- Modelo térmico básico  
+- Não considera fatores externos, como clima ou pessoas no local  
+
+### 5. Possíveis melhorias
+
 - Integração com sensores reais  
-- Interface gráfica  
-- Controle mais preciso da temperatura  
+- Uso de aprendizado de máquina avançado  
+- Interface gráfica completa  
+- Controle remoto via internet  
+- Otimização energética em tempo real  
+
+---
 
 ## Parte 5 — Uso de Inteligência Artificial
 
-A IA foi utilizada como ferramenta de apoio nas seguintes etapas:
+A inteligência artificial foi aplicada diretamente no comportamento do agente por meio de:
 
-- organização do projeto  
-- estruturação textual  
-- revisão lógica do código  
-- auxílio técnico em Python  
+- percepção do ambiente;  
+- memória de estados anteriores;  
+- tomada de decisão automática;  
+- adaptação dinâmica ao ambiente;  
+- escolha racional entre aquecer, resfriar ou manter.  
 
-Todas as decisões finais foram revisadas e validadas pelo grupo.
+Esses recursos permitem que o agente atue de forma autônoma e eficiente.
+
+---
+
+## Arquivos Entregues
+
+```text
+README.md
+agente_temperatura.py
+Especificação_do_Agente_de_IA.tex
