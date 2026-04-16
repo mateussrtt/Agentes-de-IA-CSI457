@@ -1,75 +1,188 @@
+import math
+import time
+
+
 class AgenteTemperatura:
-    def __init__(self, temperatura_desejada=25):
-        self.temperatura_desejada = temperatura_desejada
-        self.estado = "desligado"
-        self.historico_temperaturas = []
-        self.historico_acoes = []
-        self.margem = 0.5 
+    def __init__(self, temperatura_desejada=25, alpha=1, beta=1, sigma=0.5):
+        self.Td = temperatura_desejada
+        self.alpha = alpha
+        self.beta = beta
+        self.sigma = sigma
 
-    def perceber(self, temperatura_atual):
-        self.historico_temperaturas.append(temperatura_atual)
+        self.sistema_ligado = False
+        self.modo = None  # resfriando / aquecendo
 
-        if len(self.historico_temperaturas) >= 2:
-            anterior = self.historico_temperaturas[-2]
+        self.memoria_temperaturas = []
+        self.historico = []
 
-            if temperatura_atual > anterior:
-                tendencia = "aumentando"
-            elif temperatura_atual < anterior:
-                tendencia = "diminuindo"
-            else:
-                tendencia = "estavel"
-        else:
-            tendencia = "estavel"
+    # -----------------------------------
+    # PERCEPÇÃO
+    # -----------------------------------
+    def perceber(self, temperatura):
+        return temperatura
 
-        return {
-            "temperatura_atual": temperatura_atual,
-            "temperatura_desejada": self.temperatura_desejada,
-            "estado": self.estado,
-            "tendencia": tendencia
-        }
+    # -----------------------------------
+    # MEMÓRIA
+    # -----------------------------------
+    def armazenar(self, temperatura):
+        self.memoria_temperaturas.append(temperatura)
 
-    def decidir(self, percepcao):
-        atual = percepcao["temperatura_atual"]
-        desejada = percepcao["temperatura_desejada"]
+    # -----------------------------------
+    # FUNÇÃO CUSTO
+    # -----------------------------------
+    def custo(self, Ta):
+        ligado = 1 if self.sistema_ligado else 0
+        return self.alpha * abs(Ta - self.Td) + self.beta * ligado
 
-        if atual < desejada - self.margem:
-            acao = "ligar aquecedor"
-            self.estado = "aquecendo"
+    # -----------------------------------
+    # LIMITE SUPERIOR E INFERIOR
+    # -----------------------------------
+    def limite_superior(self):
+        return self.Td + 3 * self.sigma
 
-        elif atual > desejada + self.margem:
+    def limite_inferior(self):
+        return self.Td - 3 * self.sigma
+
+    # -----------------------------------
+    # DECISÃO
+    # -----------------------------------
+    def decidir(self, Ta):
+        Ls = self.limite_superior()
+        Li = self.limite_inferior()
+
+        if Ta > Ls:
+            self.sistema_ligado = True
+            self.modo = "resfriando"
             acao = "ligar resfriador"
-            self.estado = "resfriando"
+
+        elif Ta < Li:
+            self.sistema_ligado = True
+            self.modo = "aquecendo"
+            acao = "ligar aquecedor"
+
+        elif self.sistema_ligado and Li <= Ta <= Ls:
+            self.sistema_ligado = False
+            self.modo = None
+            acao = "desligar sistema"
 
         else:
             acao = "manter"
 
-        self.historico_acoes.append(acao)
+        self.historico.append(acao)
         return acao
 
-    def agir(self, temperatura_atual):
-        percepcao = self.perceber(temperatura_atual)
-        acao = self.decidir(percepcao)
+    # -----------------------------------
+    # ATUALIZA AMBIENTE AUTOMÁTICO
+    # -----------------------------------
+    def atualizar_temperatura(self, Ta):
+        if self.sistema_ligado:
 
-        print(f"Temperatura: {temperatura_atual}°C")
-        print(f"Tendência: {percepcao['tendencia']}")
-        print(f"Ação: {acao}")
-        print("-" * 30)
+            if self.modo == "resfriando":
+                Ta -= 2
+
+            elif self.modo == "aquecendo":
+                Ta += 2
+
+        else:
+            # tendência natural para temperatura ambiente = 25
+            if Ta > 25:
+                Ta -= 0.5
+            elif Ta < 25:
+                Ta += 0.5
+
+        return round(Ta, 1)
+
+    # -----------------------------------
+    # PAINEL VISUAL
+    # -----------------------------------
+    def mostrar_status(self, ciclo, Ta, acao):
+        print("\n" + "=" * 55)
+        print(f"⏱ CICLO {ciclo}")
+        print("=" * 55)
+        print(f"🌡 Temperatura atual : {Ta}°C")
+        print(f"🎯 Temperatura alvo  : {self.Td}°C")
+        print(f"📈 Limite superior  : {self.limite_superior():.1f}°C")
+        print(f"📉 Limite inferior  : {self.limite_inferior():.1f}°C")
+        print(f"⚡ Ação escolhida   : {acao}")
+        print(f"🔌 Sistema ligado   : {self.sistema_ligado}")
+        print(f"💰 Custo atual      : {self.custo(Ta):.2f}")
+        print("=" * 55)
+
+    # -----------------------------------
+    # SIMULAÇÃO AUTOMÁTICA
+    # -----------------------------------
+    def simular(self, temperatura_inicial, max_ciclos=20):
+        Ta = temperatura_inicial
+
+        for ciclo in range(1, max_ciclos + 1):
+            self.armazenar(Ta)
+
+            leitura = self.perceber(Ta)
+            acao = self.decidir(leitura)
+
+            self.mostrar_status(ciclo, Ta, acao)
+
+            # objetivo atingido
+            if (
+                not self.sistema_ligado
+                and self.limite_inferior() <= Ta <= self.limite_superior()
+            ):
+                print("\n✅ Temperatura estabilizada com sucesso.")
+                break
+
+            Ta = self.atualizar_temperatura(Ta)
+            time.sleep(1)
+
+    # -----------------------------------
+    # HISTÓRICO
+    # -----------------------------------
+    def mostrar_historico(self):
+        print("\n📜 Histórico de ações:")
+        for i, acao in enumerate(self.historico, 1):
+            print(f"{i}. {acao}")
 
 
-def testar_cenario(nome, temperaturas):
-    print(f"\n{nome}")
-    print("=" * 30)
+# -----------------------------------
+# MENU
+# -----------------------------------
+def menu():
+    while True:
+        print("\n===== AGENTE INTELIGENTE DE TEMPERATURA =====")
+        print("1 - Simular ambiente quente")
+        print("2 - Simular ambiente frio")
+        print("3 - Simulação personalizada")
+        print("0 - Sair")
 
-    agente = AgenteTemperatura()
+        opcao = input("Escolha: ")
 
-    for temp in temperaturas:
-        agente.agir(temp)
+        if opcao == "1":
+            agente = AgenteTemperatura(25)
+            agente.simular(35)
+            agente.mostrar_historico()
+
+        elif opcao == "2":
+            agente = AgenteTemperatura(25)
+            agente.simular(18)
+            agente.mostrar_historico()
+
+        elif opcao == "3":
+            try:
+                atual = float(input("Temperatura atual: "))
+                desejada = float(input("Temperatura desejada: "))
+
+                agente = AgenteTemperatura(desejada)
+                agente.simular(atual)
+                agente.mostrar_historico()
+
+            except:
+                print("❌ Valor inválido.")
+
+        elif opcao == "0":
+            print("Encerrando...")
+            break
+
+        else:
+            print("❌ Opção inválida.")
 
 
-cenario1 = [24.9, 25.1, 24.8, 25.2]
-cenario2 = [30, 32, 35]
-cenario3 = [28, 27, 26, 25, 24]
-
-testar_cenario("CENÁRIO 1 - Oscilação", cenario1)
-testar_cenario("CENÁRIO 2 - Calor Extremo", cenario2)
-testar_cenario("CENÁRIO 3 - Resfriamento Gradual", cenario3)
+menu()
