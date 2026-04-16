@@ -10,42 +10,27 @@ class AgenteTemperatura:
         self.sigma = sigma
 
         self.sistema_ligado = False
-        self.modo = None  # resfriando / aquecendo
+        self.modo = None
 
         self.memoria_temperaturas = []
         self.historico = []
 
-    # -----------------------------------
-    # PERCEPÇÃO
-    # -----------------------------------
     def perceber(self, temperatura):
         return temperatura
 
-    # -----------------------------------
-    # MEMÓRIA
-    # -----------------------------------
     def armazenar(self, temperatura):
         self.memoria_temperaturas.append(temperatura)
 
-    # -----------------------------------
-    # FUNÇÃO CUSTO
-    # -----------------------------------
     def custo(self, Ta):
         ligado = 1 if self.sistema_ligado else 0
         return self.alpha * abs(Ta - self.Td) + self.beta * ligado
 
-    # -----------------------------------
-    # LIMITE SUPERIOR E INFERIOR
-    # -----------------------------------
     def limite_superior(self):
         return self.Td + 3 * self.sigma
 
     def limite_inferior(self):
         return self.Td - 3 * self.sigma
 
-    # -----------------------------------
-    # DECISÃO
-    # -----------------------------------
     def decidir(self, Ta):
         Ls = self.limite_superior()
         Li = self.limite_inferior()
@@ -71,9 +56,6 @@ class AgenteTemperatura:
         self.historico.append(acao)
         return acao
 
-    # -----------------------------------
-    # ATUALIZA AMBIENTE AUTOMÁTICO
-    # -----------------------------------
     def atualizar_temperatura(self, Ta):
         if self.sistema_ligado:
 
@@ -84,17 +66,13 @@ class AgenteTemperatura:
                 Ta += 2
 
         else:
-            # tendência natural para temperatura ambiente = 25
             if Ta > 25:
                 Ta -= 0.5
             elif Ta < 25:
                 Ta += 0.5
 
         return round(Ta, 1)
-
-    # -----------------------------------
-    # PAINEL VISUAL
-    # -----------------------------------
+    
     def mostrar_status(self, ciclo, Ta, acao):
         print("\n" + "=" * 55)
         print(f"⏱ CICLO {ciclo}")
@@ -108,9 +86,6 @@ class AgenteTemperatura:
         print(f"💰 Custo atual      : {self.custo(Ta):.2f}")
         print("=" * 55)
 
-    # -----------------------------------
-    # SIMULAÇÃO AUTOMÁTICA
-    # -----------------------------------
     def simular(self, temperatura_inicial, max_ciclos=20):
         Ta = temperatura_inicial
 
@@ -122,7 +97,6 @@ class AgenteTemperatura:
 
             self.mostrar_status(ciclo, Ta, acao)
 
-            # objetivo atingido
             if (
                 not self.sistema_ligado
                 and self.limite_inferior() <= Ta <= self.limite_superior()
@@ -133,18 +107,12 @@ class AgenteTemperatura:
             Ta = self.atualizar_temperatura(Ta)
             time.sleep(1)
 
-    # -----------------------------------
-    # HISTÓRICO
-    # -----------------------------------
     def mostrar_historico(self):
         print("\n📜 Histórico de ações:")
         for i, acao in enumerate(self.historico, 1):
             print(f"{i}. {acao}")
 
 
-# -----------------------------------
-# MENU
-# -----------------------------------
 def menu():
     while True:
         print("\n===== AGENTE INTELIGENTE DE TEMPERATURA =====")
