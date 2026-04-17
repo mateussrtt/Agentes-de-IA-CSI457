@@ -67,10 +67,14 @@
 
       .layout {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
         padding: 18px;
         align-items: start;
+      }
+
+      .card-params {
+        grid-column: 1 / -1;
       }
 
       .card {
@@ -93,6 +97,11 @@
         gap: 10px;
       }
 
+      .card-params .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
       label {
         display: block;
         margin-bottom: 6px;
@@ -113,6 +122,100 @@
         outline: none;
         border-color: #6a9ed8;
         box-shadow: 0 0 0 3px rgba(65, 128, 199, 0.16);
+      }
+
+      .temp-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .temp-slider-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .temp-slider-wrap {
+        flex: 1;
+        min-width: 0;
+        padding: 4px 0;
+      }
+
+      input[type="range"].temp-slider {
+        width: 100%;
+        height: 8px;
+        margin: 0;
+        padding: 0;
+        border-radius: 999px;
+        background: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        accent-color: var(--accent);
+      }
+
+      input[type="range"].temp-slider::-webkit-slider-runnable-track {
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          #cfe8ff 0%,
+          #e8eef5 45%,
+          #ffe8d6 100%
+        );
+      }
+
+      input[type="range"].temp-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--accent);
+        box-shadow: 0 1px 4px rgba(22, 40, 68, 0.2);
+        cursor: pointer;
+      }
+
+      input[type="range"].temp-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--accent);
+        box-shadow: 0 1px 4px rgba(22, 40, 68, 0.2);
+        cursor: pointer;
+      }
+
+      input[type="range"].temp-slider::-moz-range-track {
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          #cfe8ff 0%,
+          #e8eef5 45%,
+          #ffe8d6 100%
+        );
+      }
+
+      input.temp-num {
+        width: 4.75rem;
+        flex-shrink: 0;
+        text-align: center;
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+
+      .temp-scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        color: var(--muted);
+        user-select: none;
+      }
+
+      #btn-decidir {
+        margin-top: 14px;
       }
 
       button {
@@ -138,17 +241,12 @@
         cursor: wait;
       }
 
-      .status-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.84rem;
+      .estado-msg {
+        display: block;
+        margin: 0 0 8px;
+        font-size: 0.86rem;
         font-weight: 600;
-        color: var(--neutral);
-        background: #ecf1f5;
-        border: 1px solid #d8e0e8;
-        padding: 6px 10px;
-        border-radius: 999px;
+        color: var(--muted);
       }
 
       .result-grid {
@@ -321,6 +419,11 @@
         .layout {
           grid-template-columns: 1fr;
         }
+
+        .card-params {
+          grid-column: auto;
+        }
+
         .grid {
           grid-template-columns: 1fr;
         }
@@ -335,26 +438,64 @@
         </header>
 
         <div class="layout">
-          <article class="card">
+          <article class="card card-params">
             <h2 class="card-title">Parâmetros do ambiente</h2>
             <div class="grid">
-              <div>
-                <label for="temperatura_atual">Temperatura atual (C)</label>
-                <input
-                  id="temperatura_atual"
-                  type="number"
-                  step="0.1"
-                  value="30"
-                />
+              <div class="temp-field">
+                <label for="temperatura_atual">Temperatura atual (°C)</label>
+                <div class="temp-slider-row">
+                  <div class="temp-slider-wrap">
+                    <input
+                      id="temperatura_atual_slider"
+                      class="temp-slider"
+                      type="range"
+                      min="-10"
+                      max="50"
+                      step="0.1"
+                      value="30"
+                      aria-label="Ajuste fino da temperatura atual"
+                    />
+                  </div>
+                  <input
+                    id="temperatura_atual"
+                    class="temp-num"
+                    type="number"
+                    step="0.1"
+                    value="30"
+                  />
+                </div>
+                <div class="temp-scale" aria-hidden="true">
+                  <span>-10 °C</span>
+                  <span>50 °C</span>
+                </div>
               </div>
-              <div>
-                <label for="temperatura_desejada">Temperatura desejada (C)</label>
-                <input
-                  id="temperatura_desejada"
-                  type="number"
-                  step="0.1"
-                  value="20"
-                />
+              <div class="temp-field">
+                <label for="temperatura_desejada">Temperatura desejada (°C)</label>
+                <div class="temp-slider-row">
+                  <div class="temp-slider-wrap">
+                    <input
+                      id="temperatura_desejada_slider"
+                      class="temp-slider"
+                      type="range"
+                      min="-10"
+                      max="50"
+                      step="0.1"
+                      value="20"
+                      aria-label="Ajuste fino da temperatura desejada"
+                    />
+                  </div>
+                  <input
+                    id="temperatura_desejada"
+                    class="temp-num"
+                    type="number"
+                    step="0.1"
+                    value="20"
+                  />
+                </div>
+                <div class="temp-scale" aria-hidden="true">
+                  <span>-10 °C</span>
+                  <span>50 °C</span>
+                </div>
               </div>
             </div>
             <button id="btn-decidir" type="button">Analisar e decidir ação</button>
@@ -362,7 +503,7 @@
 
           <article class="card">
             <h2 class="card-title">Estado do agente</h2>
-            <span id="estado-chip" class="status-chip">Aguardando entrada</span>
+            <span id="estado-chip" class="estado-msg">Aguardando entrada</span>
             <div id="resultado" class="result-grid">
               <div class="result-item">
                 <span class="result-label">Ação</span>
@@ -423,6 +564,49 @@
       const valorCusto = document.getElementById("valor-custo");
       const listaDecisao = document.getElementById("lista-decisao");
       const timelineTemp = document.getElementById("timeline-temp");
+
+      function configurarControleTemperatura(numId, sliderId) {
+        const num = document.getElementById(numId);
+        const slider = document.getElementById(sliderId);
+        if (!num || !slider) return;
+
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+
+        function arredondarUmaCasa(v) {
+          return Math.round(v * 10) / 10;
+        }
+
+        function sincronizarSliderComNumero() {
+          const v = parseFloat(num.value);
+          if (Number.isNaN(v)) return;
+          const limitado = Math.min(max, Math.max(min, v));
+          slider.value = String(limitado);
+        }
+
+        function sincronizarNumeroComSlider() {
+          num.value = String(arredondarUmaCasa(parseFloat(slider.value)));
+        }
+
+        slider.addEventListener("input", sincronizarNumeroComSlider);
+        slider.addEventListener("change", sincronizarNumeroComSlider);
+        num.addEventListener("input", sincronizarSliderComNumero);
+        num.addEventListener("change", () => {
+          let v = parseFloat(num.value);
+          if (Number.isNaN(v)) {
+            v = arredondarUmaCasa((min + max) / 2);
+          } else {
+            v = arredondarUmaCasa(v);
+          }
+          num.value = String(v);
+          sincronizarSliderComNumero();
+        });
+
+        sincronizarSliderComNumero();
+      }
+
+      configurarControleTemperatura("temperatura_atual", "temperatura_atual_slider");
+      configurarControleTemperatura("temperatura_desejada", "temperatura_desejada_slider");
 
       const ICONS_PASSO = {
         neutro:
