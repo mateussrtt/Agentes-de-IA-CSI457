@@ -1,4 +1,3 @@
-import math
 import time
 
 
@@ -66,12 +65,59 @@ class AgenteTemperatura:
                 Ta += 2
 
         else:
-            if Ta > 25:
+            if Ta > self.Td:
                 Ta -= 0.5
-            elif Ta < 25:
+            elif Ta < self.Td:
                 Ta += 0.5
 
         return round(Ta, 1)
+
+    def gerar_trace(self, temperatura_inicial, max_ciclos=30):
+        passos = []
+        Ta = temperatura_inicial
+        motivo_fim = "max_ciclos"
+
+        for ciclo in range(1, max_ciclos + 1):
+            self.armazenar(Ta)
+            leitura = self.perceber(Ta)
+            acao = self.decidir(leitura)
+
+            passos.append(
+                {
+                    "ciclo": ciclo,
+                    "temperatura": round(Ta, 1),
+                    "acao": acao,
+                    "modo": self.modo,
+                    "sistema_ligado": self.sistema_ligado,
+                    "custo": round(self.custo(Ta), 2),
+                    "limite_inferior": round(self.limite_inferior(), 2),
+                    "limite_superior": round(self.limite_superior(), 2),
+                }
+            )
+
+            if (
+                not self.sistema_ligado
+                and self.limite_inferior() <= Ta <= self.limite_superior()
+            ):
+                motivo_fim = "estabilizada"
+                break
+
+            Ta = self.atualizar_temperatura(Ta)
+            passos[-1]["temperatura_apos"] = round(Ta, 1)
+
+        trajetoria_cronologica = []
+        for p in passos:
+            trajetoria_cronologica.append(p["temperatura"])
+            if "temperatura_apos" in p:
+                trajetoria_cronologica.append(p["temperatura_apos"])
+
+        return {
+            "passos": passos,
+            "historico_temperaturas": list(self.memoria_temperaturas),
+            "trajetoria_cronologica": trajetoria_cronologica,
+            "motivo_fim": motivo_fim,
+            "temperatura_desejada": self.Td,
+        }
     
     def mostrar_status(self, ciclo, Ta, acao):
         print("\n" + "=" * 55)
@@ -86,26 +132,26 @@ class AgenteTemperatura:
         print(f"💰 Custo atual      : {self.custo(Ta):.2f}")
         print("=" * 55)
 
+    def mostrar_status_passo(self, p):
+        print("\n" + "=" * 55)
+        print(f"⏱ CICLO {p['ciclo']}")
+        print("=" * 55)
+        print(f"🌡 Temperatura atual : {p['temperatura']}°C")
+        print(f"🎯 Temperatura alvo  : {self.Td}°C")
+        print(f"📈 Limite superior  : {p['limite_superior']:.1f}°C")
+        print(f"📉 Limite inferior  : {p['limite_inferior']:.1f}°C")
+        print(f"⚡ Ação escolhida   : {p['acao']}")
+        print(f"🔌 Sistema ligado   : {p['sistema_ligado']}")
+        print(f"💰 Custo atual      : {p['custo']:.2f}")
+        print("=" * 55)
+
     def simular(self, temperatura_inicial, max_ciclos=20):
-        Ta = temperatura_inicial
-
-        for ciclo in range(1, max_ciclos + 1):
-            self.armazenar(Ta)
-
-            leitura = self.perceber(Ta)
-            acao = self.decidir(leitura)
-
-            self.mostrar_status(ciclo, Ta, acao)
-
-            if (
-                not self.sistema_ligado
-                and self.limite_inferior() <= Ta <= self.limite_superior()
-            ):
-                print("\n✅ Temperatura estabilizada com sucesso.")
-                break
-
-            Ta = self.atualizar_temperatura(Ta)
+        resultado = self.gerar_trace(temperatura_inicial, max_ciclos)
+        for p in resultado["passos"]:
+            self.mostrar_status_passo(p)
             time.sleep(1)
+        if resultado["motivo_fim"] == "estabilizada":
+            print("\n✅ Temperatura estabilizada com sucesso.")
 
     def mostrar_historico(self):
         print("\n📜 Histórico de ações:")

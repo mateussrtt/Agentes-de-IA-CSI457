@@ -6,19 +6,22 @@
     <title>Painel de Controle Térmico</title>
     <style>
       :root {
-        --bg: #eef2f7;
+        --page-bg: #fafafa;
         --surface: #ffffff;
-        --surface-2: #f7f9fc;
-        --text: #1a2433;
-        --muted: #6d7784;
-        --border: #d6dde8;
-        --accent: #245b99;
-        --accent-hover: #1f4e85;
-        --cold: #1e88e5;
-        --warm: #ef6c00;
-        --neutral: #607d8b;
-        --ok: #2e7d32;
-        --error: #b00020;
+        --surface-2: #f4f6f8;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #cbd5e1;
+        --border-strong: #94a3b8;
+        --accent: #0d47a1;
+        --accent-hover: #082f6c;
+        --cold: #0277bd;
+        --warm: #c62828;
+        --neutral: #546e7a;
+        --ok: #1b5e20;
+        --error: #b71c1c;
+        --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+        --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
       }
 
       * {
@@ -28,35 +31,84 @@
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: linear-gradient(180deg, #f4f7fb 0%, #eaf0f8 100%);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        background: var(--page-bg);
         color: var(--text);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
       }
 
       .container {
-        width: min(1280px, 100%);
-        margin: 36px auto;
-        padding: 0 16px;
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        padding: 28px 20px 40px;
       }
 
       .panel {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 14px;
-        box-shadow: 0 12px 28px rgba(22, 40, 68, 0.08);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
         overflow: hidden;
       }
 
       .panel-header {
-        padding: 20px 22px 14px;
+        position: relative;
+        padding: 26px 26px 22px;
         border-bottom: 1px solid var(--border);
-        background: var(--surface-2);
+        background: linear-gradient(180deg, #f1f5f9 0%, #ffffff 58%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      }
+
+      .panel-header::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          #0d47a1 0%,
+          #1976d2 22%,
+          #cfd8dc 50%,
+          #e53935 78%,
+          #b71c1c 100%
+        );
+      }
+
+      .panel-heading {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .panel-heading-accent {
+        flex-shrink: 0;
+        width: 5px;
+        align-self: stretch;
+        min-height: 2.65rem;
+        border-radius: 4px;
+        background: linear-gradient(
+          180deg,
+          var(--cold) 0%,
+          var(--accent) 42%,
+          #c62828 100%
+        );
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.35);
       }
 
       .panel-title {
         margin: 0;
-        font-size: 1.3rem;
-        letter-spacing: 0.2px;
+        font-size: clamp(1.22rem, 2.5vw, 1.55rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.18;
+        color: var(--text);
+        text-wrap: balance;
       }
 
       .panel-subtitle {
@@ -68,8 +120,8 @@
       .layout {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        padding: 18px;
+        gap: 22px;
+        padding: 22px 24px 28px;
         align-items: start;
       }
 
@@ -79,16 +131,21 @@
 
       .card {
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: 10px;
         background: var(--surface);
-        padding: 14px;
+        padding: 18px 18px 20px;
         min-width: 0;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
       }
 
       .card-title {
-        margin: 0 0 10px;
-        font-size: 0.98rem;
+        margin: 0 0 14px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
       }
 
       .grid {
@@ -104,24 +161,26 @@
 
       label {
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
+        color: var(--text);
       }
 
       input {
         width: 100%;
-        padding: 10px 11px;
-        border: 1px solid #c4d0df;
-        border-radius: 9px;
-        font-size: 0.95rem;
-        background: #fff;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        background: var(--surface);
+        color: var(--text);
       }
 
       input:focus {
         outline: none;
-        border-color: #6a9ed8;
-        box-shadow: 0 0 0 3px rgba(65, 128, 199, 0.16);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px rgba(13, 71, 161, 0.25);
       }
 
       .temp-field {
@@ -144,7 +203,7 @@
 
       input[type="range"].temp-slider {
         width: 100%;
-        height: 8px;
+        height: 10px;
         margin: 0;
         padding: 0;
         border-radius: 999px;
@@ -155,46 +214,53 @@
       }
 
       input[type="range"].temp-slider::-webkit-slider-runnable-track {
-        height: 8px;
+        height: 10px;
         border-radius: 999px;
+        border: 1px solid var(--border-strong);
         background: linear-gradient(
           90deg,
-          #cfe8ff 0%,
-          #e8eef5 45%,
-          #ffe8d6 100%
+          #0d47a1 0%,
+          #42a5f5 22%,
+          #eceff1 50%,
+          #ff8a65 78%,
+          #c62828 100%
         );
       }
 
       input[type="range"].temp-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
+        margin-top: -5px;
         border-radius: 50%;
-        background: #fff;
-        border: 2px solid var(--accent);
-        box-shadow: 0 1px 4px rgba(22, 40, 68, 0.2);
+        background: #ffffff;
+        border: 2px solid #0f172a;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
         cursor: pointer;
       }
 
       input[type="range"].temp-slider::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        background: #fff;
-        border: 2px solid var(--accent);
-        box-shadow: 0 1px 4px rgba(22, 40, 68, 0.2);
+        background: #ffffff;
+        border: 2px solid #0f172a;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
         cursor: pointer;
       }
 
       input[type="range"].temp-slider::-moz-range-track {
-        height: 8px;
+        height: 10px;
         border-radius: 999px;
+        border: 1px solid var(--border-strong);
         background: linear-gradient(
           90deg,
-          #cfe8ff 0%,
-          #e8eef5 45%,
-          #ffe8d6 100%
+          #0d47a1 0%,
+          #42a5f5 22%,
+          #eceff1 50%,
+          #ff8a65 78%,
+          #c62828 100%
         );
       }
 
@@ -215,29 +281,36 @@
       }
 
       #btn-decidir {
-        margin-top: 14px;
+        margin-top: 18px;
       }
 
       button {
         margin-top: 12px;
         width: 100%;
-        padding: 11px 14px;
+        min-height: 44px;
+        padding: 12px 16px;
         border: none;
-        border-radius: 9px;
+        border-radius: 10px;
         background: var(--accent);
         color: #fff;
-        font-weight: 600;
-        font-size: 0.95rem;
+        font-weight: 700;
+        font-size: 0.9375rem;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: var(--shadow-sm);
       }
 
       button:hover {
         background: var(--accent-hover);
       }
 
+      button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px rgba(13, 71, 161, 0.35);
+      }
+
       button:disabled {
-        opacity: 0.8;
+        opacity: 0.72;
         cursor: wait;
       }
 
@@ -252,24 +325,25 @@
       .result-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 9px;
-        margin-top: 10px;
+        gap: 10px;
+        margin-top: 12px;
       }
 
       .result-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        padding: 10px 11px;
-        background: var(--surface-2);
-        border: 1px solid #e1e6ef;
-        border-radius: 9px;
+        gap: 12px;
+        padding: 12px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
       }
 
       .result-label {
         color: var(--muted);
-        font-size: 0.88rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
       }
 
       .result-value {
@@ -297,27 +371,32 @@
       }
 
       .erro-box {
-        margin-top: 10px;
-        padding: 10px 11px;
-        border: 1px solid #f2bbc6;
-        background: #fff0f4;
-        border-radius: 9px;
-        font-size: 0.9rem;
+        margin-top: 12px;
+        padding: 12px 14px;
+        border: 1px solid #e57373;
+        background: #ffebee;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: var(--text);
       }
 
       .decision-log {
         max-height: min(52vh, 440px);
-        padding: 10px 11px;
-        border: 1px solid #d8e0e8;
-        border-radius: 9px;
-        background: #fbfdff;
+        padding: 14px 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
         overflow-x: hidden;
         overflow-y: auto;
+        scrollbar-gutter: stable;
       }
 
       .decision-log-title {
-        margin: 0 0 8px;
-        font-size: 0.9rem;
+        margin: 0 0 10px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         color: var(--muted);
       }
 
@@ -326,15 +405,15 @@
         padding-left: 0;
         list-style: none;
         display: grid;
-        gap: 10px;
-        font-size: 0.9rem;
+        gap: 13px;
+        font-size: 0.875rem;
       }
 
       .passo {
         display: flex;
         align-items: flex-start;
-        gap: 10px;
-        color: #334155;
+        gap: 12px;
+        color: var(--text);
         overflow-wrap: anywhere;
         hyphens: auto;
       }
@@ -347,16 +426,16 @@
 
       .passo-icon {
         flex-shrink: 0;
-        width: 26px;
-        height: 26px;
+        width: 28px;
+        height: 28px;
         margin-top: 1px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
-        background: #eef3f9;
-        border: 1px solid #dde6f0;
-        color: #5a6c7d;
+        background: var(--surface-2);
+        border: 1px solid var(--border-strong);
+        color: var(--muted);
       }
 
       .passo-icon svg {
@@ -367,57 +446,161 @@
 
       .passo.current .passo-texto {
         color: var(--accent);
-        font-weight: 600;
+        font-weight: 700;
       }
 
       .passo.current .passo-icon {
-        border-color: #b8d4f0;
-        background: #e8f2fc;
+        border-color: var(--accent);
+        background: #e3f2fd;
         color: var(--accent);
       }
 
       .passo-erro .passo-icon,
       .passo-conexao .passo-icon {
-        border-color: #f0c4cd;
-        background: #fff0f4;
+        border-color: #e57373;
+        background: #ffebee;
         color: var(--error);
       }
 
       .passo-erro .passo-texto,
       .passo-conexao .passo-texto {
-        color: #8a1c2e;
+        color: var(--error);
       }
 
-      .timeline-wrap {
-        margin-top: 10px;
-        max-width: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding-bottom: 4px;
+      .subcard-title {
+        margin: 0;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
       }
 
-      .timeline {
-        display: inline-flex;
-        flex-wrap: nowrap;
-        gap: 6px;
-        min-width: min-content;
+      .hist-wrap {
+        max-height: min(40vh, 320px);
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        scrollbar-gutter: stable;
       }
 
-      .timeline-step {
-        flex: 0 0 auto;
-        background: #e9f0f8;
-        border: 1px solid #d0dfef;
-        color: #2b4d72;
-        border-radius: 999px;
-        padding: 5px 9px;
+      .hist-table {
+        width: 100%;
+        border-collapse: collapse;
         font-size: 0.82rem;
-        font-weight: 600;
+      }
+
+      .hist-table th,
+      .hist-table td {
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hist-table th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--accent);
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #ffffff;
         white-space: nowrap;
       }
 
+      .hist-table td:nth-child(1) {
+        width: 3rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .hist-table td:nth-child(2),
+      .hist-table td:nth-child(3) {
+        white-space: nowrap;
+      }
+
+      .hist-table td.col-sequencia {
+        font-variant-numeric: tabular-nums;
+        line-height: 1.4;
+        word-break: break-word;
+        min-width: 8rem;
+      }
+
+      .hist-table tbody tr:nth-child(even) td {
+        background: #f8fafc;
+      }
+
+      .hist-table tbody tr:hover td {
+        background: #f1f5f9;
+      }
+
+      .hist-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .hist-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 20px 0 0;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+      }
+
+      .hist-title-inline {
+        margin: 0;
+      }
+
+      .hist-hint {
+        margin: 6px 0 10px;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .btn-hist-clear {
+        margin: 0;
+        width: auto;
+        min-height: auto;
+        padding: 8px 14px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: none;
+      }
+
+      .btn-hist-clear:hover {
+        background: var(--surface-2);
+        border-color: var(--border-strong);
+      }
+
       @media (max-width: 760px) {
+        .container {
+          padding: 18px 14px 28px;
+        }
+
+        .panel-header {
+          padding: 24px 18px 18px;
+        }
+
+        .panel-heading {
+          gap: 14px;
+        }
+
         .layout {
           grid-template-columns: 1fr;
+          gap: 18px;
+          padding: 18px 16px 22px;
         }
 
         .card-params {
@@ -427,6 +610,19 @@
         .grid {
           grid-template-columns: 1fr;
         }
+
+        .decision-log {
+          max-height: min(48vh, 380px);
+        }
+
+        .hist-wrap {
+          max-height: min(36vh, 280px);
+        }
+
+        .hist-table td:nth-child(2),
+        .hist-table td:nth-child(3) {
+          white-space: normal;
+        }
       }
     </style>
   </head>
@@ -434,7 +630,10 @@
     <main class="container">
       <section class="panel">
         <header class="panel-header">
-          <h1 class="panel-title">Agente de Controle de Temperatura</h1>
+          <div class="panel-heading">
+            <span class="panel-heading-accent" aria-hidden="true"></span>
+            <h1 class="panel-title">Agente de Controle de Temperatura</h1>
+          </div>
         </header>
 
         <div class="layout">
@@ -470,7 +669,9 @@
                 </div>
               </div>
               <div class="temp-field">
-                <label for="temperatura_desejada">Temperatura desejada (°C)</label>
+                <label for="temperatura_desejada"
+                  >Temperatura desejada (°C)</label
+                >
                 <div class="temp-slider-row">
                   <div class="temp-slider-wrap">
                     <input
@@ -498,7 +699,9 @@
                 </div>
               </div>
             </div>
-            <button id="btn-decidir" type="button">Analisar e decidir ação</button>
+            <button id="btn-decidir" type="button">
+              Analisar e decidir ação
+            </button>
           </article>
 
           <article class="card">
@@ -527,16 +730,45 @@
               </div>
             </div>
             <div id="erro-box" class="erro-box erro" hidden></div>
+            <div class="hist-toolbar">
+              <h3 class="subcard-title hist-title-inline">Histórico de temperaturas</h3>
+              <button type="button" id="btn-limpar-historico" class="btn-hist-clear">
+                Limpar histórico
+              </button>
+            </div>
+            <p class="hist-hint">
+              Cada execução adiciona uma linha: simulação, partida, meta e sequência de temperaturas.
+            </p>
+            <div class="hist-wrap">
+              <table class="hist-table" aria-label="Histórico de simulações">
+                <thead>
+                  <tr>
+                    <th scope="col">Sim.</th>
+                    <th scope="col">Partida (°C)</th>
+                    <th scope="col">Meta (°C)</th>
+                    <th scope="col">Sequência completa (°C)</th>
+                  </tr>
+                </thead>
+                <tbody id="historico-temp-lista"></tbody>
+              </table>
+            </div>
           </article>
 
           <article class="card">
             <h2 class="card-title">Raciocínio do agente</h2>
             <div class="decision-log">
-              <h3 class="decision-log-title">Etapas essenciais</h3>
+              <h3 class="decision-log-title">Etapas da simulação</h3>
               <ol id="lista-decisao" class="decision-log-list">
                 <li class="passo passo-aguardando">
                   <span class="passo-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
                       <circle cx="12" cy="12" r="10" />
                       <path d="M12 6v6l4 2" />
                     </svg>
@@ -544,9 +776,6 @@
                   <span class="passo-texto">Aguardando nova simulação.</span>
                 </li>
               </ol>
-              <div class="timeline-wrap">
-                <div id="timeline-temp" class="timeline"></div>
-              </div>
             </div>
           </article>
         </div>
@@ -563,7 +792,13 @@
       const valorFaixa = document.getElementById("valor-faixa");
       const valorCusto = document.getElementById("valor-custo");
       const listaDecisao = document.getElementById("lista-decisao");
-      const timelineTemp = document.getElementById("timeline-temp");
+      const historicoTempLista = document.getElementById("historico-temp-lista");
+      const btnLimparHistorico = document.getElementById("btn-limpar-historico");
+
+      let contadorSimulacao = 0;
+
+      const PAUSA_PENSAR_MS = 450;
+      const PAUSA_ENTRE_PASSOS_MS = 350;
 
       function configurarControleTemperatura(numId, sliderId) {
         const num = document.getElementById(numId);
@@ -605,16 +840,21 @@
         sincronizarSliderComNumero();
       }
 
-      configurarControleTemperatura("temperatura_atual", "temperatura_atual_slider");
-      configurarControleTemperatura("temperatura_desejada", "temperatura_desejada_slider");
+      configurarControleTemperatura(
+        "temperatura_atual",
+        "temperatura_atual_slider",
+      );
+      configurarControleTemperatura(
+        "temperatura_desejada",
+        "temperatura_desejada_slider",
+      );
 
       const ICONS_PASSO = {
         neutro:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
         leitura:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5.75 0z"/><path d="M12 15v-4"/></svg>',
-        meta:
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+        meta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
         avaliacao:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
         comparacao:
@@ -623,8 +863,7 @@
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
         final:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
-        erro:
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+        erro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
         conexao:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a6 6 0 0 1-12 0V8"/></svg>',
       };
@@ -635,10 +874,73 @@
 
       function limparLogDecisao() {
         listaDecisao.innerHTML = "";
-        timelineTemp.innerHTML = "";
       }
 
-      function adicionarPassoDecisao(texto, emAndamento = false, tipo = "neutro") {
+      function limparHistoricoTemperaturas() {
+        if (historicoTempLista) historicoTempLista.innerHTML = "";
+      }
+
+      function adicionarEntradaHistorico(numSim, atual, meta, trajetoria) {
+        if (!historicoTempLista) return;
+        const trajText =
+          Array.isArray(trajetoria) && trajetoria.length
+            ? trajetoria.map((t) => `${t}`).join(" → ")
+            : "—";
+        const tr = document.createElement("tr");
+        const tdSim = document.createElement("td");
+        const tdPartida = document.createElement("td");
+        const tdMeta = document.createElement("td");
+        const tdSeq = document.createElement("td");
+        tdSim.textContent = String(numSim);
+        tdPartida.textContent = String(atual);
+        tdMeta.textContent = String(meta);
+        tdSeq.className = "col-sequencia";
+        tdSeq.textContent = trajText;
+        tr.appendChild(tdSim);
+        tr.appendChild(tdPartida);
+        tr.appendChild(tdMeta);
+        tr.appendChild(tdSeq);
+        historicoTempLista.appendChild(tr);
+      }
+
+      function aplicarEstadoDoPasso(p) {
+        valorAcao.textContent = p.acao || "-";
+        limparClassesAcao();
+        valorAcao.classList.add(classeAcao(p.acao));
+        valorSistema.textContent = p.sistema_ligado ? "Ligado" : "Desligado";
+        valorSistema.classList.toggle("ligado", Boolean(p.sistema_ligado));
+        valorModo.textContent = p.modo || "nenhum";
+        valorFaixa.textContent = `[${p.limite_inferior}, ${p.limite_superior}]`;
+        valorCusto.textContent = String(p.custo);
+      }
+
+      function atualizarTemperaturaAtualNoFormulario(grausC) {
+        const num = document.getElementById("temperatura_atual");
+        const slider = document.getElementById("temperatura_atual_slider");
+        if (!num) return;
+        const v = Math.round(Number(grausC) * 10) / 10;
+        if (Number.isNaN(v)) return;
+        num.value = String(v);
+        if (slider) {
+          const min = parseFloat(slider.min);
+          const max = parseFloat(slider.max);
+          const clamped = Math.min(max, Math.max(min, v));
+          slider.value = String(clamped);
+        }
+      }
+
+      function temperaturaAlcancadaNoFimDaAcao(p) {
+        if (p.temperatura_apos !== undefined && p.temperatura_apos !== null) {
+          return p.temperatura_apos;
+        }
+        return p.temperatura;
+      }
+
+      function adicionarPassoDecisao(
+        texto,
+        emAndamento = false,
+        tipo = "neutro",
+      ) {
         const item = document.createElement("li");
         item.className = `passo passo-${tipo}`;
         if (emAndamento) {
@@ -657,51 +959,14 @@
         return item;
       }
 
-      function simularVariacaoGradual(inicial, alvo, acao) {
-        const passos = [Number(inicial.toFixed(1))];
-        let atual = Number(inicial);
-        const direcao = String(acao || "").toLowerCase();
-        const ajuste = direcao.includes("resfriador")
-          ? -2
-          : direcao.includes("aquecedor")
-          ? 2
-          : 0;
-
-        if (ajuste === 0) {
-          return passos;
-        }
-
-        for (let i = 0; i < 4; i += 1) {
-          atual += ajuste;
-
-          if (ajuste > 0) {
-            atual = Math.min(atual, alvo);
-          } else {
-            atual = Math.max(atual, alvo);
-          }
-
-          passos.push(Number(atual.toFixed(1)));
-          if (atual === alvo) break;
-        }
-
-        return passos;
-      }
-
-      function mostrarTimeline(valores) {
-        timelineTemp.innerHTML = "";
-        if (!valores.length) return;
-        valores.forEach((valor) => {
-          const item = document.createElement("span");
-          item.className = "timeline-step";
-          item.textContent = `${valor}°C`;
-          timelineTemp.appendChild(item);
-        });
-      }
-
       function definirCarregando(ativo) {
         botao.disabled = ativo;
-        botao.textContent = ativo ? "Processando..." : "Analisar e decidir ação";
-        estadoChip.textContent = ativo ? "Analisando leituras" : estadoChip.textContent;
+        botao.textContent = ativo
+          ? "Processando..."
+          : "Analisar e decidir ação";
+        if (ativo) {
+          estadoChip.textContent = "Carregando simulação...";
+        }
       }
 
       function classeAcao(acao) {
@@ -725,120 +990,123 @@
         erroBox.textContent = "";
       }
 
+      if (btnLimparHistorico) {
+        btnLimparHistorico.addEventListener("click", () => {
+          limparHistoricoTemperaturas();
+          contadorSimulacao = 0;
+        });
+      }
+
       botao.addEventListener("click", async () => {
         esconderErro();
         definirCarregando(true);
         limparLogDecisao();
 
         const temperaturaAtual = Number(
-          document.getElementById("temperatura_atual").value
+          document.getElementById("temperatura_atual").value,
         );
         const temperaturaDesejada = Number(
-          document.getElementById("temperatura_desejada").value
-        );
-
-        const passoLeitura = adicionarPassoDecisao(
-          `Leitura inicial: ${temperaturaAtual}°C.`,
-          true,
-          "leitura"
-        );
-        await esperar(250);
-        passoLeitura.classList.remove("current");
-
-        const passoObjetivo = adicionarPassoDecisao(
-          `Meta térmica: ${temperaturaDesejada}°C.`,
-          true,
-          "meta"
-        );
-        await esperar(250);
-        passoObjetivo.classList.remove("current");
-
-        const passoConsulta = adicionarPassoDecisao(
-          "Avaliando se deve aquecer, resfriar ou manter...",
-          true,
-          "avaliacao"
+          document.getElementById("temperatura_desejada").value,
         );
 
         try {
-          const resposta = await fetch("/decidir", {
+          const resposta = await fetch("/simular", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               temperatura_atual: temperaturaAtual,
               temperatura_desejada: temperaturaDesejada,
+              max_ciclos: 50,
             }),
           });
 
           const dados = await resposta.json();
-          passoConsulta.classList.remove("current");
 
           if (!resposta.ok) {
             estadoChip.textContent = "Falha de validação";
             mostrarErro(dados.erro || "Erro ao processar os dados.");
             adicionarPassoDecisao(
-              "Entradas inválidas. Decisão interrompida.",
+              "Entradas inválidas. Simulação interrompida.",
               false,
-              "erro"
+              "erro",
             );
             return;
           }
 
-          const acao = dados.acao || "indefinida";
-          const distanciaMeta = Number(
-            Math.abs(temperaturaAtual - temperaturaDesejada).toFixed(1)
+          const passos = dados.passos || [];
+          const total = passos.length;
+
+          contadorSimulacao += 1;
+          const numSim = contadorSimulacao;
+
+          adicionarPassoDecisao(
+            `Início: leitura ${temperaturaAtual}°C, meta ${temperaturaDesejada}°C (${total} ciclo(s) até parar).`,
+            false,
+            "meta",
           );
-          let posicaoEmRelacaoMeta = "na meta";
-          if (temperaturaAtual > temperaturaDesejada) {
-            posicaoEmRelacaoMeta = "acima da meta";
-          } else if (temperaturaAtual < temperaturaDesejada) {
-            posicaoEmRelacaoMeta = "abaixo da meta";
+
+          for (let i = 0; i < passos.length; i += 1) {
+            const p = passos[i];
+            estadoChip.textContent =
+              total > 0 ? `Ciclo ${p.ciclo} de ${total}` : "Simulando...";
+
+            const pensando = adicionarPassoDecisao(
+              `Ciclo ${p.ciclo}: pensando sobre a leitura ${p.temperatura}°C...`,
+              true,
+              "avaliacao",
+            );
+            await esperar(PAUSA_PENSAR_MS);
+            pensando.classList.remove("current");
+
+            let textoApos = "";
+            if (
+              p.temperatura_apos !== undefined &&
+              p.temperatura_apos !== null
+            ) {
+              textoApos = ` → após atualização física: ${p.temperatura_apos}°C`;
+            }
+            adicionarPassoDecisao(
+              `Ciclo ${p.ciclo}: ação ${p.acao} (leitura ${p.temperatura}°C${textoApos}).`,
+              false,
+              "escolha",
+            );
+
+            aplicarEstadoDoPasso(p);
+            atualizarTemperaturaAtualNoFormulario(
+              temperaturaAlcancadaNoFimDaAcao(p),
+            );
+            await esperar(PAUSA_ENTRE_PASSOS_MS);
           }
 
-          const passoComparacao = adicionarPassoDecisao(
-            `Distância até a meta: ${distanciaMeta}°C (${posicaoEmRelacaoMeta}; faixa ideal ${dados.limite_inferior}°C a ${dados.limite_superior}°C).`,
-            true,
-            "comparacao"
-          );
-          await esperar(300);
-          passoComparacao.classList.remove("current");
-
-          let justificativa = "Temperatura estável. Melhor manter o estado atual.";
-          if (acao.toLowerCase().includes("resfriador")) {
-            justificativa = "Temperatura acima da faixa. Vou diminuir acionando o resfriador.";
-          } else if (acao.toLowerCase().includes("aquecedor")) {
-            justificativa = "Temperatura abaixo da faixa. Vou aumentar acionando o aquecedor.";
-          } else if (acao.toLowerCase().includes("desligar")) {
-            justificativa = "Temperatura dentro da faixa e sistema ativo. Vou desligar o sistema.";
-          }
-
-          const passoEscolha = adicionarPassoDecisao(justificativa, true, "escolha");
-          await esperar(350);
-          passoEscolha.classList.remove("current");
-
-          adicionarPassoDecisao(`Decisão final: ${acao}.`, false, "final");
-          const progresso = simularVariacaoGradual(
+          adicionarEntradaHistorico(
+            numSim,
             temperaturaAtual,
             temperaturaDesejada,
-            acao
+            dados.trajetoria_cronologica || [],
           );
-          mostrarTimeline(progresso);
-          estadoChip.textContent = "Decisão concluída";
-          valorAcao.textContent = acao;
-          limparClassesAcao();
-          valorAcao.classList.add(classeAcao(acao));
-          valorSistema.textContent = dados.sistema_ligado ? "Ligado" : "Desligado";
-          valorSistema.classList.toggle("ligado", Boolean(dados.sistema_ligado));
-          valorModo.textContent = dados.modo || "nenhum";
-          valorFaixa.textContent = `[${dados.limite_inferior}, ${dados.limite_superior}]`;
-          valorCusto.textContent = String(dados.custo);
+
+          if (dados.motivo_fim === "estabilizada") {
+            estadoChip.textContent = "Temperatura estabilizada na faixa ideal";
+            adicionarPassoDecisao(
+              "Fim: temperatura estabilizada dentro da faixa (sistema desligado).",
+              false,
+              "final",
+            );
+          } else {
+            estadoChip.textContent = "Fim: limite de ciclos atingido";
+            adicionarPassoDecisao(
+              "Fim: limite máximo de ciclos atingido sem estabilizar.",
+              false,
+              "final",
+            );
+          }
         } catch (erro) {
           estadoChip.textContent = "Falha de conexão";
           mostrarErro("Erro de conexão com o servidor Flask.");
-          passoConsulta.classList.remove("current");
           adicionarPassoDecisao(
-            "Não foi possível concluir o raciocínio por falha de conexão.",
+            "Não foi possível concluir a simulação por falha de conexão.",
             false,
-            "conexao"
+            "conexao",
           );
         } finally {
           definirCarregando(false);
