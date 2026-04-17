@@ -3,88 +3,576 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agente de Temperatura</title>
+    <title>Painel de Controle Térmico</title>
     <style>
+      :root {
+        --bg: #eef2f7;
+        --surface: #ffffff;
+        --surface-2: #f7f9fc;
+        --text: #1a2433;
+        --muted: #6d7784;
+        --border: #d6dde8;
+        --accent: #245b99;
+        --accent-hover: #1f4e85;
+        --cold: #1e88e5;
+        --warm: #ef6c00;
+        --neutral: #607d8b;
+        --ok: #2e7d32;
+        --error: #b00020;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        max-width: 760px;
-        margin: 40px auto;
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(180deg, #f4f7fb 0%, #eaf0f8 100%);
+        color: var(--text);
+      }
+
+      .container {
+        width: min(1280px, 100%);
+        margin: 36px auto;
         padding: 0 16px;
-        line-height: 1.45;
       }
-      h1 {
-        margin-bottom: 8px;
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 12px 28px rgba(22, 40, 68, 0.08);
+        overflow: hidden;
       }
+
+      .panel-header {
+        padding: 20px 22px 14px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-2);
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 1.3rem;
+        letter-spacing: 0.2px;
+      }
+
+      .panel-subtitle {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+        gap: 14px;
+        padding: 18px;
+        align-items: start;
+      }
+
       .card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        margin-top: 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        padding: 14px;
+        min-width: 0;
+        overflow: hidden;
       }
+
+      .card-title {
+        margin: 0 0 10px;
+        font-size: 0.98rem;
+      }
+
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 10px;
       }
+
       label {
         display: block;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         font-weight: 600;
+        font-size: 0.9rem;
       }
+
       input {
         width: 100%;
-        box-sizing: border-box;
-        padding: 8px;
+        padding: 10px 11px;
+        border: 1px solid #c4d0df;
+        border-radius: 9px;
+        font-size: 0.95rem;
+        background: #fff;
       }
+
+      input:focus {
+        outline: none;
+        border-color: #6a9ed8;
+        box-shadow: 0 0 0 3px rgba(65, 128, 199, 0.16);
+      }
+
       button {
         margin-top: 12px;
-        padding: 10px 14px;
+        width: 100%;
+        padding: 11px 14px;
+        border: none;
+        border-radius: 9px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
         cursor: pointer;
+        transition: background-color 0.2s ease;
       }
-      #resultado {
-        white-space: pre-line;
+
+      button:hover {
+        background: var(--accent-hover);
       }
+
+      button:disabled {
+        opacity: 0.8;
+        cursor: wait;
+      }
+
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--neutral);
+        background: #ecf1f5;
+        border: 1px solid #d8e0e8;
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+        margin-top: 10px;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 11px;
+        background: var(--surface-2);
+        border: 1px solid #e1e6ef;
+        border-radius: 9px;
+      }
+
+      .result-label {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .result-value {
+        font-weight: 700;
+      }
+
+      .acao-frio {
+        color: var(--cold);
+      }
+
+      .acao-quente {
+        color: var(--warm);
+      }
+
+      .acao-neutra {
+        color: var(--neutral);
+      }
+
+      .ligado {
+        color: var(--ok);
+      }
+
       .erro {
-        color: #b00020;
+        color: var(--error);
+      }
+
+      .erro-box {
+        margin-top: 10px;
+        padding: 10px 11px;
+        border: 1px solid #f2bbc6;
+        background: #fff0f4;
+        border-radius: 9px;
+        font-size: 0.9rem;
+      }
+
+      .decision-log {
+        max-height: min(52vh, 440px);
+        padding: 10px 11px;
+        border: 1px solid #d8e0e8;
+        border-radius: 9px;
+        background: #fbfdff;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .decision-log-title {
+        margin: 0 0 8px;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .decision-log-list {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+        font-size: 0.9rem;
+      }
+
+      .passo {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        color: #334155;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+      }
+
+      .passo-texto {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.4;
+      }
+
+      .passo-icon {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        margin-top: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #eef3f9;
+        border: 1px solid #dde6f0;
+        color: #5a6c7d;
+      }
+
+      .passo-icon svg {
+        width: 15px;
+        height: 15px;
+        display: block;
+      }
+
+      .passo.current .passo-texto {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .passo.current .passo-icon {
+        border-color: #b8d4f0;
+        background: #e8f2fc;
+        color: var(--accent);
+      }
+
+      .passo-erro .passo-icon,
+      .passo-conexao .passo-icon {
+        border-color: #f0c4cd;
+        background: #fff0f4;
+        color: var(--error);
+      }
+
+      .passo-erro .passo-texto,
+      .passo-conexao .passo-texto {
+        color: #8a1c2e;
+      }
+
+      .timeline-wrap {
+        margin-top: 10px;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 4px;
+      }
+
+      .timeline {
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        min-width: min-content;
+      }
+
+      .timeline-step {
+        flex: 0 0 auto;
+        background: #e9f0f8;
+        border: 1px solid #d0dfef;
+        color: #2b4d72;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 760px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Controle de Temperatura (Flask + HTML)</h1>
-    <p>Digite os valores e veja a acao escolhida pelo agente.</p>
+    <main class="container">
+      <section class="panel">
+        <header class="panel-header">
+          <h1 class="panel-title">Agente de Controle de Temperatura</h1>
+        </header>
 
-    <div class="card">
-      <div class="grid">
-        <div>
-          <label for="temperatura_atual">Temperatura atual (C)</label>
-          <input id="temperatura_atual" type="number" step="0.1" value="30" />
-        </div>
-        <div>
-          <label for="temperatura_desejada">Temperatura desejada (C)</label>
-          <input id="temperatura_desejada" type="number" step="0.1" value="20" />
-        </div>
-      </div>
-      <button id="btn-decidir" type="button">Decidir acao</button>
-    </div>
+        <div class="layout">
+          <article class="card">
+            <h2 class="card-title">Parâmetros do ambiente</h2>
+            <div class="grid">
+              <div>
+                <label for="temperatura_atual">Temperatura atual (C)</label>
+                <input
+                  id="temperatura_atual"
+                  type="number"
+                  step="0.1"
+                  value="30"
+                />
+              </div>
+              <div>
+                <label for="temperatura_desejada">Temperatura desejada (C)</label>
+                <input
+                  id="temperatura_desejada"
+                  type="number"
+                  step="0.1"
+                  value="20"
+                />
+              </div>
+            </div>
+            <button id="btn-decidir" type="button">Analisar e decidir ação</button>
+          </article>
 
-    <div class="card">
-      <h2>Resultado</h2>
-      <div id="resultado">Aguardando simulacao...</div>
-    </div>
+          <article class="card">
+            <h2 class="card-title">Estado do agente</h2>
+            <span id="estado-chip" class="status-chip">Aguardando entrada</span>
+            <div id="resultado" class="result-grid">
+              <div class="result-item">
+                <span class="result-label">Ação</span>
+                <span id="valor-acao" class="result-value">-</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Sistema</span>
+                <span id="valor-sistema" class="result-value">-</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Modo</span>
+                <span id="valor-modo" class="result-value">-</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Faixa ideal</span>
+                <span id="valor-faixa" class="result-value">-</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Custo atual</span>
+                <span id="valor-custo" class="result-value">-</span>
+              </div>
+            </div>
+            <div id="erro-box" class="erro-box erro" hidden></div>
+          </article>
+
+          <article class="card">
+            <h2 class="card-title">Raciocínio do agente</h2>
+            <div class="decision-log">
+              <h3 class="decision-log-title">Etapas essenciais</h3>
+              <ol id="lista-decisao" class="decision-log-list">
+                <li class="passo passo-aguardando">
+                  <span class="passo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                  </span>
+                  <span class="passo-texto">Aguardando nova simulação.</span>
+                </li>
+              </ol>
+              <div class="timeline-wrap">
+                <div id="timeline-temp" class="timeline"></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
 
     <script>
       const botao = document.getElementById("btn-decidir");
-      const resultado = document.getElementById("resultado");
+      const estadoChip = document.getElementById("estado-chip");
+      const erroBox = document.getElementById("erro-box");
+      const valorAcao = document.getElementById("valor-acao");
+      const valorSistema = document.getElementById("valor-sistema");
+      const valorModo = document.getElementById("valor-modo");
+      const valorFaixa = document.getElementById("valor-faixa");
+      const valorCusto = document.getElementById("valor-custo");
+      const listaDecisao = document.getElementById("lista-decisao");
+      const timelineTemp = document.getElementById("timeline-temp");
+
+      const ICONS_PASSO = {
+        neutro:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+        leitura:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5.75 0z"/><path d="M12 15v-4"/></svg>',
+        meta:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+        avaliacao:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
+        comparacao:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L4 7l4 4"/><path d="M16 21l4-4-4-4"/><path d="M4 7h16"/><path d="M20 17H4"/></svg>',
+        escolha:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+        final:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
+        erro:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+        conexao:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a6 6 0 0 1-12 0V8"/></svg>',
+      };
+
+      function esperar(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function limparLogDecisao() {
+        listaDecisao.innerHTML = "";
+        timelineTemp.innerHTML = "";
+      }
+
+      function adicionarPassoDecisao(texto, emAndamento = false, tipo = "neutro") {
+        const item = document.createElement("li");
+        item.className = `passo passo-${tipo}`;
+        if (emAndamento) {
+          item.classList.add("current");
+        }
+        const iconWrap = document.createElement("span");
+        iconWrap.className = "passo-icon";
+        iconWrap.setAttribute("aria-hidden", "true");
+        iconWrap.innerHTML = ICONS_PASSO[tipo] || ICONS_PASSO.neutro;
+        const textSpan = document.createElement("span");
+        textSpan.className = "passo-texto";
+        textSpan.textContent = texto;
+        item.appendChild(iconWrap);
+        item.appendChild(textSpan);
+        listaDecisao.appendChild(item);
+        return item;
+      }
+
+      function simularVariacaoGradual(inicial, alvo, acao) {
+        const passos = [Number(inicial.toFixed(1))];
+        let atual = Number(inicial);
+        const direcao = String(acao || "").toLowerCase();
+        const ajuste = direcao.includes("resfriador")
+          ? -2
+          : direcao.includes("aquecedor")
+          ? 2
+          : 0;
+
+        if (ajuste === 0) {
+          return passos;
+        }
+
+        for (let i = 0; i < 4; i += 1) {
+          atual += ajuste;
+
+          if (ajuste > 0) {
+            atual = Math.min(atual, alvo);
+          } else {
+            atual = Math.max(atual, alvo);
+          }
+
+          passos.push(Number(atual.toFixed(1)));
+          if (atual === alvo) break;
+        }
+
+        return passos;
+      }
+
+      function mostrarTimeline(valores) {
+        timelineTemp.innerHTML = "";
+        if (!valores.length) return;
+        valores.forEach((valor) => {
+          const item = document.createElement("span");
+          item.className = "timeline-step";
+          item.textContent = `${valor}°C`;
+          timelineTemp.appendChild(item);
+        });
+      }
+
+      function definirCarregando(ativo) {
+        botao.disabled = ativo;
+        botao.textContent = ativo ? "Processando..." : "Analisar e decidir ação";
+        estadoChip.textContent = ativo ? "Analisando leituras" : estadoChip.textContent;
+      }
+
+      function classeAcao(acao) {
+        const texto = (acao || "").toLowerCase();
+        if (texto.includes("resfriador")) return "acao-frio";
+        if (texto.includes("aquecedor")) return "acao-quente";
+        return "acao-neutra";
+      }
+
+      function limparClassesAcao() {
+        valorAcao.classList.remove("acao-frio", "acao-quente", "acao-neutra");
+      }
+
+      function mostrarErro(mensagem) {
+        erroBox.hidden = false;
+        erroBox.textContent = mensagem;
+      }
+
+      function esconderErro() {
+        erroBox.hidden = true;
+        erroBox.textContent = "";
+      }
 
       botao.addEventListener("click", async () => {
-        resultado.classList.remove("erro");
-        resultado.textContent = "Calculando...";
+        esconderErro();
+        definirCarregando(true);
+        limparLogDecisao();
 
         const temperaturaAtual = Number(
           document.getElementById("temperatura_atual").value
         );
         const temperaturaDesejada = Number(
           document.getElementById("temperatura_desejada").value
+        );
+
+        const passoLeitura = adicionarPassoDecisao(
+          `Leitura inicial: ${temperaturaAtual}°C.`,
+          true,
+          "leitura"
+        );
+        await esperar(250);
+        passoLeitura.classList.remove("current");
+
+        const passoObjetivo = adicionarPassoDecisao(
+          `Meta térmica: ${temperaturaDesejada}°C.`,
+          true,
+          "meta"
+        );
+        await esperar(250);
+        passoObjetivo.classList.remove("current");
+
+        const passoConsulta = adicionarPassoDecisao(
+          "Avaliando se deve aquecer, resfriar ou manter...",
+          true,
+          "avaliacao"
         );
 
         try {
@@ -98,30 +586,78 @@
           });
 
           const dados = await resposta.json();
+          passoConsulta.classList.remove("current");
 
           if (!resposta.ok) {
-            resultado.classList.add("erro");
-            resultado.textContent = dados.erro || "Erro ao processar os dados.";
+            estadoChip.textContent = "Falha de validação";
+            mostrarErro(dados.erro || "Erro ao processar os dados.");
+            adicionarPassoDecisao(
+              "Entradas inválidas. Decisão interrompida.",
+              false,
+              "erro"
+            );
             return;
           }
 
-          resultado.textContent =
-            "Acao: " +
-            dados.acao +
-            "\nSistema ligado: " +
-            (dados.sistema_ligado ? "sim" : "nao") +
-            "\nModo: " +
-            (dados.modo || "nenhum") +
-            "\nFaixa ideal: [" +
-            dados.limite_inferior +
-            ", " +
-            dados.limite_superior +
-            "]" +
-            "\nCusto atual: " +
-            dados.custo;
+          const acao = dados.acao || "indefinida";
+          const distanciaMeta = Number(
+            Math.abs(temperaturaAtual - temperaturaDesejada).toFixed(1)
+          );
+          let posicaoEmRelacaoMeta = "na meta";
+          if (temperaturaAtual > temperaturaDesejada) {
+            posicaoEmRelacaoMeta = "acima da meta";
+          } else if (temperaturaAtual < temperaturaDesejada) {
+            posicaoEmRelacaoMeta = "abaixo da meta";
+          }
+
+          const passoComparacao = adicionarPassoDecisao(
+            `Distância até a meta: ${distanciaMeta}°C (${posicaoEmRelacaoMeta}; faixa ideal ${dados.limite_inferior}°C a ${dados.limite_superior}°C).`,
+            true,
+            "comparacao"
+          );
+          await esperar(300);
+          passoComparacao.classList.remove("current");
+
+          let justificativa = "Temperatura estável. Melhor manter o estado atual.";
+          if (acao.toLowerCase().includes("resfriador")) {
+            justificativa = "Temperatura acima da faixa. Vou diminuir acionando o resfriador.";
+          } else if (acao.toLowerCase().includes("aquecedor")) {
+            justificativa = "Temperatura abaixo da faixa. Vou aumentar acionando o aquecedor.";
+          } else if (acao.toLowerCase().includes("desligar")) {
+            justificativa = "Temperatura dentro da faixa e sistema ativo. Vou desligar o sistema.";
+          }
+
+          const passoEscolha = adicionarPassoDecisao(justificativa, true, "escolha");
+          await esperar(350);
+          passoEscolha.classList.remove("current");
+
+          adicionarPassoDecisao(`Decisão final: ${acao}.`, false, "final");
+          const progresso = simularVariacaoGradual(
+            temperaturaAtual,
+            temperaturaDesejada,
+            acao
+          );
+          mostrarTimeline(progresso);
+          estadoChip.textContent = "Decisão concluída";
+          valorAcao.textContent = acao;
+          limparClassesAcao();
+          valorAcao.classList.add(classeAcao(acao));
+          valorSistema.textContent = dados.sistema_ligado ? "Ligado" : "Desligado";
+          valorSistema.classList.toggle("ligado", Boolean(dados.sistema_ligado));
+          valorModo.textContent = dados.modo || "nenhum";
+          valorFaixa.textContent = `[${dados.limite_inferior}, ${dados.limite_superior}]`;
+          valorCusto.textContent = String(dados.custo);
         } catch (erro) {
-          resultado.classList.add("erro");
-          resultado.textContent = "Erro de conexao com o servidor Flask.";
+          estadoChip.textContent = "Falha de conexão";
+          mostrarErro("Erro de conexão com o servidor Flask.");
+          passoConsulta.classList.remove("current");
+          adicionarPassoDecisao(
+            "Não foi possível concluir o raciocínio por falha de conexão.",
+            false,
+            "conexao"
+          );
+        } finally {
+          definirCarregando(false);
         }
       });
     </script>
