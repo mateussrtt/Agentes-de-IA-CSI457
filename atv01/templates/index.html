@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agente de Temperatura</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 16px;
+        line-height: 1.45;
+      }
+      h1 {
+        margin-bottom: 8px;
+      }
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+      }
+      button {
+        margin-top: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+      #resultado {
+        white-space: pre-line;
+      }
+      .erro {
+        color: #b00020;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Controle de Temperatura (Flask + HTML)</h1>
+    <p>Digite os valores e veja a acao escolhida pelo agente.</p>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label for="temperatura_atual">Temperatura atual (C)</label>
+          <input id="temperatura_atual" type="number" step="0.1" value="30" />
+        </div>
+        <div>
+          <label for="temperatura_desejada">Temperatura desejada (C)</label>
+          <input id="temperatura_desejada" type="number" step="0.1" value="20" />
+        </div>
+      </div>
+      <button id="btn-decidir" type="button">Decidir acao</button>
+    </div>
+
+    <div class="card">
+      <h2>Resultado</h2>
+      <div id="resultado">Aguardando simulacao...</div>
+    </div>
+
+    <script>
+      const botao = document.getElementById("btn-decidir");
+      const resultado = document.getElementById("resultado");
+
+      botao.addEventListener("click", async () => {
+        resultado.classList.remove("erro");
+        resultado.textContent = "Calculando...";
+
+        const temperaturaAtual = Number(
+          document.getElementById("temperatura_atual").value
+        );
+        const temperaturaDesejada = Number(
+          document.getElementById("temperatura_desejada").value
+        );
+
+        try {
+          const resposta = await fetch("/decidir", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              temperatura_atual: temperaturaAtual,
+              temperatura_desejada: temperaturaDesejada,
+            }),
+          });
+
+          const dados = await resposta.json();
+
+          if (!resposta.ok) {
+            resultado.classList.add("erro");
+            resultado.textContent = dados.erro || "Erro ao processar os dados.";
+            return;
+          }
+
+          resultado.textContent =
+            "Acao: " +
+            dados.acao +
+            "\nSistema ligado: " +
+            (dados.sistema_ligado ? "sim" : "nao") +
+            "\nModo: " +
+            (dados.modo || "nenhum") +
+            "\nFaixa ideal: [" +
+            dados.limite_inferior +
+            ", " +
+            dados.limite_superior +
+            "]" +
+            "\nCusto atual: " +
+            dados.custo;
+        } catch (erro) {
+          resultado.classList.add("erro");
+          resultado.textContent = "Erro de conexao com o servidor Flask.";
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -3,7 +3,7 @@ import time
 
 
 class AgenteTemperatura:
-    def __init__(self, temperatura_desejada=25, alpha=1, beta=1, sigma=0.5):
+    def __init__(self, temperatura_desejada=20, alpha=1, beta=1, sigma=0.5):
         self.Td = temperatura_desejada
         self.alpha = alpha
         self.beta = beta
@@ -153,4 +153,5 @@ def menu():
             print("❌ Opção inválida.")
 
 
-menu()
+if __name__ == "__main__":
+    menu()

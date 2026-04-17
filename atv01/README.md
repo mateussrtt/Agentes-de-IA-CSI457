@@ -145,5 +145,40 @@ Esses recursos permitem que o agente atue de forma autônoma e eficiente.
 
 ```text
 README.md
-agente_temperatura.py
+app.py
+src/agente_temperatura.py
+templates/index.html
+requirements.txt
 Especificação_do_Agente_de_IA.tex
+```
+
+---
+
+## Interface Web com Flask
+
+Foi adicionada uma interface HTML integrada ao agente usando Flask.
+
+### Como executar
+
+1. Instale as dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Execute o servidor:
+
+```bash
+python app.py
+```
+
+3. Abra no navegador:
+
+`http://127.0.0.1:5000`
+
+### Como funciona a integracao
+
+- A rota `GET /` retorna a pagina HTML.
+- O formulario envia `temperatura_atual` e `temperatura_desejada` em JSON para `POST /decidir`.
+- O backend cria o `AgenteTemperatura`, chama `decidir()` e devolve o resultado em JSON.
+- O JavaScript exibe a acao do agente na tela.
